@@ -1,0 +1,41 @@
+version: '3'
+services:
+  mongo_node1:
+    image: mongo
+    ports:
+      - 37017:37017
+    networks: 
+      - mongoclusternet
+    command: mongod --replSet rs0 --port 37017
+
+  mongo_node2:
+    image: mongo
+    ports:
+      - 27018:27018
+    networks: 
+      - mongoclusternet
+    command: mongod --replSet rs0 --port 27018
+    depends_on: 
+      - mongo_node1
+
+  mongo_node3:
+    image: mongo
+    ports:
+      - 27019:27019
+    networks: 
+      - mongoclusternet
+    command: mongod --replSet rs0 --port 27019
+    depends_on: 
+      - mongo_node2
+
+  setup-rs:
+    image: "setup-rs"
+    build: ./replica
+    depends_on:
+      - mongo_node3
+    networks: 
+      - mongoclusternet
+
+networks: 
+  mongoclusternet:
+    driver : bridge
